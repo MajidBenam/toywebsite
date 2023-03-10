@@ -1,0 +1,53 @@
+[
+{
+    "model": "references.citation",
+    "pk": 1,
+    "fields": {
+        "citation_text": "ali att gdsd dsdsd",
+        "polity": "AfDurrn",
+        "creators": "majid and ali",
+        "year": 1989,
+        "title": "tre abd huet",
+        "certainty": 10,
+        "wiki_number": 5,
+        "browser_number": 4,
+        "site": "wiki",
+        "done": true,
+        "zotero": "--------"
+    }
+},
+{
+    "model": "references.citation",
+    "pk": 2,
+    "fields": {
+        "citation_text": "trtzuzz hjtj dfgdg",
+        "polity": "deded",
+        "creators": "fre and bre",
+        "year": 1222,
+        "title": "zt ui",
+        "certainty": 79,
+        "wiki_number": 0,
+        "browser_number": 2,
+        "site": "browser",
+        "done": false,
+        "zotero": "erfdtgzh"
+    }
+},
+{
+    "model": "references.citation",
+    "pk": 3,
+    "fields": {
+        "citation_text": "ali mandan",
+        "polity": "Bhjizrt",
+        "creators": "ali va hamid va taghi",
+        "year": 2011,
+        "title": "Ali hamdan oo in fir gtafe",
+        "certainty": 0,
+        "wiki_number": 0,
+        "browser_number": 13,
+        "site": "browser",
+        "done": true,
+        "zotero": "lokijuhz"
+    }
+}
+]

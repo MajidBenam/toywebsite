@@ -1,0 +1,19 @@
+[
+    {
+        "model": "references.reference",
+        "pk": 5970,
+        "fields": {
+            "old_ref": "http://www.britannica.com/place/Quito <br> Ali <br> Hamid",
+            "polity": "EcJivaL",
+            "creator": "Britannica <br> Majid \n d <br> ddd",
+            "year": 2015,
+            "title": "Disponível em: http://www. britannica. com",
+            "certainty": 63,
+            "gs_stars": -1,
+            "_pass": false,
+            "new_zotero": "BWT6CRKK",
+            "created_at": null,
+            "updated_at": null
+        }
+    }
+]
