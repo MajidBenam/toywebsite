@@ -12,6 +12,7 @@ from .custom_filters import noescape
 
 # to load data:
 # $ python manage.py loaddata toywebsite/references.json
+# $ python manage.py loaddata toywebsite/citations.json
 
 
 class Reference(models.Model):
@@ -91,7 +92,10 @@ class Citation(models.Model):
     wiki_number = models.IntegerField(default = 0, blank=True, null=True)
     browser_number = models.IntegerField(default = 0, blank=True, null=True)
 
-    child_count = models.IntegerField(default = 0, blank=True, null=True)
+    child_count_wiki = models.IntegerField(default = 0, blank=True, null=True)
+    child_count_browser = models.IntegerField(default = 0, blank=True, null=True)
+
+    citation_number = models.IntegerField(default = 0, blank=True, null=True)
 
     site = models.CharField(max_length=8, choices=WEBSITE_CHOICES, blank=True, null=True)
 

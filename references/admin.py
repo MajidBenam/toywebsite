@@ -18,20 +18,20 @@ class CertaintyFilter(admin.SimpleListFilter):
 
     def lookups(self, request, model_admin):
         return [
-            ("Good_to_Go", format_html("<b>certainty > 57</b>")),
-            ("Meh_to_Go",  format_html("<b>46 < certainty < 56</b>")),
-            ("Bad_to_Go",  format_html("<b>certainty < 45</b>")),
+            ("Good_to_Go", format_html("<b>certainty > 80</b>")),
+            ("Meh_to_Go",  format_html("<b>50 < certainty < 80</b>")),
+            ("Bad_to_Go",  format_html("<b>certainty < 50</b>")),
         ]
 
     def queryset(self, request, queryset):
         if not self.value():
             return queryset
         if self.value() == "Good_to_Go":
-            return queryset.distinct().filter(certainty__gt=57)
+            return queryset.distinct().filter(certainty__gte=80)
         if self.value() == "Meh_to_Go":
-            return queryset.distinct().filter(certainty__gt=45).filter(certainty__lte=57)
+            return queryset.distinct().filter(certainty__gt=50).filter(certainty__lt=80)
         if self.value() == "Bad_to_Go":
-            return queryset.distinct().filter(certainty__gte=0).filter(certainty__lte=45)
+            return queryset.distinct().filter(certainty__gte=0).filter(certainty__lte=50)
 
 
 
@@ -50,11 +50,11 @@ class SiteFilter(admin.SimpleListFilter):
         if not self.value():
             return queryset
         if self.value() == "Good_to_Go":
-            return queryset.distinct().filter(wiki_number__gt=0).filter(browser_number__gt=0)
+            return queryset.distinct().filter(child_count_wiki__gt=0).filter(child_count_browser__gt=0)
         if self.value() == "WIKI_to_Go":
-            return queryset.distinct().filter(wiki_number__gt=0)
+            return queryset.distinct().filter(child_count_wiki__gt=0).filter(child_count_browser=0)
         if self.value() == "BROW_to_Go":
-            return queryset.distinct().filter(browser_number__gt=0)
+            return queryset.distinct().filter(child_count_browser__gt=0).filter(child_count_wiki=0)
         
 
 class DoneFilter(admin.SimpleListFilter):
@@ -161,7 +161,7 @@ class CitationAdmin(admin.ModelAdmin):
     #model = Reference
     #inlines = [InlineModelAdmin]
 
-    list_display = ('link', 'citation_on_old_site', 'zotero_guess','zotero', 'sure', 'GS', 'done', )
+    list_display = ('link', 'citation_on_old_site', 'zotero_guess','zotero',  'sure', 'zot', 'GS', 'done', )
     list_display_links = ('citation_on_old_site',)
     search_fields = ('polity', 'citation_text', 'year', 'creators', )
     list_editable = ('done', 'zotero')
@@ -176,7 +176,7 @@ class CitationAdmin(admin.ModelAdmin):
                            url_link_browser="http://seshatdatabank.info/browser/" + obj.polity + "#cite_note-" + str(obj.browser_number), url_clickable_browser=obj.polity)
         else:
             return format_html("<a href='{url_link_wiki}' target='_blank'>{url_clickable_wiki}</a> ",
-                           url_link_wiki="http://seshat.info/w/index.php?title=" + obj.polity + "#cite_note-" + str(obj.wiki_number), url_clickable_wiki=obj.polity)
+                           url_link_wiki="https://seshat.info/w/index.php?title=" + obj.polity + "#cite_note-" + str(obj.wiki_number), url_clickable_wiki=obj.polity)
 
     def GS(self, obj):
         return format_html("<strong><a href='{url_link}' target='_blank'> &#128270;</a></strong>",
@@ -184,17 +184,24 @@ class CitationAdmin(admin.ModelAdmin):
 
     def sure(self, obj):
         if (str(obj.certainty)) != 'None':
-            if obj.certainty > 57:
+            if obj.certainty >= 80:
                 my_color = 'green'
-            elif obj.certainty <= 57 and obj.certainty >= 45:
+            elif obj.certainty <= 80 and obj.certainty >= 50:
                 my_color = 'orange'
             # elif obj.certainty == 0:
             #    my_color = 'ornage'
             else:
                 my_color = 'red'
-            return format_html("<p style='color:{color_picked}'><strong>{cert_level}</strong></p>", color_picked=my_color, cert_level=str(obj.certainty) + "%")
+            return format_html("<h3 style='color:{color_picked}'><strong>{cert_level}</strong></h3>", color_picked=my_color, cert_level=str(obj.certainty) + "%")
         else:
-            return format_html("<p><strong>{cert_level}</strong></p>", cert_level=str('0') + "%")
+            return format_html("<h3><strong>{cert_level}</strong></h3>", cert_level=str('0') + "%")
 
+    def zot(self, obj):
+        if  "-" not in obj.zotero:
+            return format_html("<h3><a  style='color:red' href='{url_link}' target='_blank'> Z </a></h3>",
+                               url_link="https://www.zotero.org/groups/1051264/seshat_databank/items/" + obj.zotero)
+        else:
+            return "----"
+        
 
 admin.site.register(Citation, CitationAdmin)

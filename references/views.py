@@ -8,34 +8,41 @@ def references(request):
     done_citations_browser = Citation.objects.filter(done=True).filter(site="browser").count()
 
     # let's count the wiki situation:
-    citations_wiki = Citation.objects.filter(site="wiki")
+    # keep in mind that a citation is relevant to seshat.info if its children are >= 1
+    citations_wiki = Citation.objects.filter(child_count_wiki__gte=1)
     citations_wiki_count = citations_wiki.count()
     done_citations_wiki_count = citations_wiki.filter(done=True).count()
     my_wiki_children = 0
     my_done_wiki_children = 0
     for item in citations_wiki:
-        if item.child_count > 0:
-            my_wiki_children+=item.child_count
+        if item.child_count_wiki > 0:
+            my_wiki_children+=item.child_count_wiki
             if item.done:
-                my_done_wiki_children+=item.child_count
+                my_done_wiki_children+=item.child_count_wiki
 
     # let's count the browser situation:
-    citations_browser = Citation.objects.filter(site="browser")
+    citations_browser = Citation.objects.filter(child_count_browser__gte=1)
     citations_browser_count = citations_browser.count()
+    
     done_citations_browser_count = citations_browser.filter(done=True).count()
     my_browser_children = 0
     my_done_browser_children = 0
     for item in citations_browser:
-        if item.child_count > 0:
-            my_browser_children+=item.child_count
+        if item.child_count_browser > 0:
+            my_browser_children+=item.child_count_browser
             if item.done:
-                my_done_browser_children+=item.child_count
+                my_done_browser_children+=item.child_count_browser
 
 
     if citations_browser_count == 0:
-        citations_browser = 10000
+        citations_browser_count = 10000
     if citations_wiki_count == 0:
-        citations_wiki = 10000
+        citations_wiki_count = 10000
+
+    if my_wiki_children == 0:
+        my_wiki_children = 10000
+    if my_browser_children == 0:
+        my_browser_children = 10000
     print("____")
     return HttpResponse(f'''
             <style>
