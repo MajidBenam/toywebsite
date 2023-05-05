@@ -16,7 +16,18 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+# from django.conf import settings
+# from django.conf.urls.static import static
+
+# from django.views.generic.base import TemplateView
+
 urlpatterns = [
     path('', include('references.urls')),
     path('admin/', admin.site.urls),
-]
+    #path('<str:html_file_name>/', TemplateView.as_view(template_name='static_html/{html_file_name}'), name='static_html'),
+
+] #+ static(settings.STATIC_URL + 'static_html/', document_root=settings.STATIC_ROOT + 'static_html/')
+
+# Serve static files during development.
+# if settings.DEBUG:
+#     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

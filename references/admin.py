@@ -8,6 +8,9 @@ from django.forms import TextInput, Textarea
 #from tinymce.models import HTMLField, RichTextEditorWidget
 from django.forms import CheckboxInput
 
+from django.db.models import F, Sum
+from django.urls import reverse
+
 
 from .models import Reference, Citation
 
@@ -74,6 +77,53 @@ class DoneFilter(admin.SimpleListFilter):
             return queryset.distinct().filter(done=True)
         if self.value() == "Meh_to_Go":
             return queryset.distinct().filter(done=False)
+        
+class DifficultFilter(admin.SimpleListFilter):
+    title = format_html("<b style='color:green'>Too Hard?</b>")
+    parameter_name = "hard_or_not"
+
+    def lookups(self, request, model_admin):
+        return [
+            ("Hard_to_Go", format_html("<b>Too Hard</b>")),
+            ("Easy_to_Go", format_html("<b>Not Too Hard</b>")),
+        ]
+
+    def queryset(self, request, queryset):
+        if not self.value():
+            return queryset
+        if self.value() == "Hard_to_Go":
+            return queryset.distinct().filter(difficult=True)
+        if self.value() == "Easy_to_Go":
+            return queryset.distinct().filter(difficult=False)
+        
+class FertileFilter(admin.SimpleListFilter):
+    title = format_html("<b style='color:green'>Many Children?</b>")
+    parameter_name = "fert_or_not"
+
+    def lookups(self, request, model_admin):
+        return [
+            ("Great_to_Go", format_html("<b>50+</b> Kids")),
+            ("Good_to_Go", format_html("<b>15</b> to <b>49</b> Kids")),
+            ("Norm_to_Go", format_html("<b>5</b> to <b>14</b> Kids")),
+            ("Ok_to_Go", format_html("<b>2</b> to <b>4</b> Kids")),
+            ("Meh_to_Go", format_html("Single Child")),
+
+        ]
+
+    def queryset(self, request, queryset):
+        if not self.value():
+            return queryset
+        if self.value() == "Great_to_Go":
+            return queryset.annotate(total_count=Sum(F('child_count_browser') + F('child_count_wiki'))).filter(total_count__gte=50).order_by('-total_count')
+        if self.value() == "Good_to_Go":
+            return queryset.annotate(total_count=Sum(F('child_count_browser') + F('child_count_wiki'))).filter(total_count__gte=15).filter(total_count__lt=50).order_by('-total_count')
+        if self.value() == "Norm_to_Go":
+            return queryset.annotate(total_count=Sum(F('child_count_browser') + F('child_count_wiki'))).filter(total_count__gte=5).filter(total_count__lte=14).order_by('-total_count')
+        if self.value() == "Ok_to_Go":
+            return queryset.annotate(total_count=Sum(F('child_count_browser') + F('child_count_wiki'))).filter(total_count__gte=2).filter(total_count__lte=4).order_by('-total_count')
+            #return queryset.distinct().filter(child_count_browser__gt=5)
+        if self.value() == "Meh_to_Go":
+            return queryset.annotate(total_count=Sum(F('child_count_browser') + F('child_count_wiki'))).filter(total_count__lte=1).order_by('-total_count')
 
 @admin.display(description="Firm URL")
 class ReferenceAdmin(admin.ModelAdmin):
@@ -146,8 +196,6 @@ class ReferenceAdmin(admin.ModelAdmin):
 # https://stackoverflow.com/questions/12102697/creating-custom-filters-for-list-filter-in-django-admin
 
 
-
-
 @admin.display(description="Firm URL")
 class CitationAdmin(admin.ModelAdmin):
     formfield_overrides = {
@@ -161,22 +209,40 @@ class CitationAdmin(admin.ModelAdmin):
     #model = Reference
     #inlines = [InlineModelAdmin]
 
-    list_display = ('link', 'citation_on_old_site', 'zotero_guess','zotero',  'sure', 'zot', 'GS', 'done', )
-    list_display_links = ('citation_on_old_site',)
-    search_fields = ('polity', 'citation_text', 'year', 'creators', )
-    list_editable = ('done', 'zotero')
+    list_display = ('link', 'citation_on_old_site', 'zotero_guess','zotero',  'sure', 'zot', 'GS', 'done', 'difficult')
+    list_display_links = ('sure',)
+    search_fields = ('polity', 'citation_text', 'year', 'creators', 'zotero')
+    list_editable = ('done', 'zotero', 'difficult')
     list_per_page = 20
-    list_filter = (SiteFilter, DoneFilter, CertaintyFilter)
-    
+    list_filter = (SiteFilter, DoneFilter, DifficultFilter, CertaintyFilter, FertileFilter)
+
+    # def view_static_file(self, obj):
+    #     url = reverse('static_file_view', args=["PgOrokE.html"])
+    #     return format_html(f'<a href="{url}">"PgOrokE.html"</a>')
+    # view_static_file.short_description = 'View Static File'
 
     def link(self, obj):
         # if we have both wiki and browser, show browser
+        # if obj.browser_number != 0:
+        #     return format_html("<a href='{url_link_browser}' target='_blank'>{url_clickable_browser}</a>",
+        #                    url_link_browser="http://seshatdatabank.info/browser/" + obj.polity + "#cite_note-" + str(obj.browser_number), url_clickable_browser=obj.polity)
         if obj.browser_number != 0:
-            return format_html("<a href='{url_link_browser}' target='_blank'>{url_clickable_browser}</a>",
-                           url_link_browser="http://seshatdatabank.info/browser/" + obj.polity + "#cite_note-" + str(obj.browser_number), url_clickable_browser=obj.polity)
+            url = reverse('static_file_view', args=[f"full_{obj.polity}.html"])
+            url_link_browser= url +  "#cite_note-" + str(obj.browser_number)
+            return format_html(f"<a href='{url_link_browser}' target='_blank'>{obj.polity}</a>",)
         else:
-            return format_html("<a href='{url_link_wiki}' target='_blank'>{url_clickable_wiki}</a> ",
-                           url_link_wiki="https://seshat.info/w/index.php?title=" + obj.polity + "#cite_note-" + str(obj.wiki_number), url_clickable_wiki=obj.polity)
+            url = reverse('static_file_view', args=[f"{obj.polity}.html"])
+            url_link_browser= url +  "#cite_note-" + str(obj.wiki_number)
+            return format_html(f"<a href='{url_link_browser}' target='_blank'>{obj.polity}</a>",)
+
+            #return format_html(f'<a href="{url}">{obj.polity}</a>')
+            # html_file_name = 'PgOrokE.html'
+            # html_url = reverse('static', kwargs={'html_file_name': html_file_name})
+            # link_html = format_html(f'<a href="{html_url}">Link to {html_file_name}</a>')
+            # return link_html
+
+
+            #return format_html(f"<span> {obj.polity} <br> #{obj.wiki_number} </span>")
 
     def GS(self, obj):
         return format_html("<strong><a href='{url_link}' target='_blank'> &#128270;</a></strong>",
@@ -197,11 +263,13 @@ class CitationAdmin(admin.ModelAdmin):
             return format_html("<h3><strong>{cert_level}</strong></h3>", cert_level=str('0') + "%")
 
     def zot(self, obj):
-        if  "-" not in obj.zotero:
+        if not obj.zotero:
+            return "--"
+        elif "-" not in obj.zotero:
             return format_html("<h3><a  style='color:red' href='{url_link}' target='_blank'> Z </a></h3>",
                                url_link="https://www.zotero.org/groups/1051264/seshat_databank/items/" + obj.zotero)
         else:
-            return "----"
+            return "---"
         
 
 admin.site.register(Citation, CitationAdmin)

@@ -1,0 +1,44 @@
+[
+{
+    "model": "references.citation",
+    "pk": 62496,
+    "fields": {
+        "citation_text": "Barfield, Thomas. Afghanistan: a cultural and political history. Princeton University Press, 2010.",
+        "polity": "AfDurrn",
+        "creators": "Barfield",
+        "year": 2010,
+        "title": "afghanistan",
+        "certainty": 90,
+        "difficult": false,
+        "wiki_number": 0,
+        "browser_number": 1,
+        "child_count_wiki": 7,
+        "child_count_browser": 6,
+        "citation_number": 1,
+        "site": "browser",
+        "done": true,
+        "zotero": "KRAHXXNV"
+    }
+},
+{
+    "model": "references.citation",
+    "pk": 62497,
+    "fields": {
+        "citation_text": "Dani, Ahmad Hasan, V. M Masson, J Harmatta, Baij Nath Puri, G. F Etemadi, Boris Anatolʹevich Litvinskiĭ, Guangda Zhang, et al. History of Civilizations of Central Asia. Vol. V The Sixteenth to the Mid-Nineteenth Centuries. Paris: Unesco, 1992.,.",
+        "polity": "AfDurrn",
+        "creators": "xyz",
+        "year": 0,
+        "title": "abc xyz",
+        "certainty": 0,
+        "difficult": false,
+        "wiki_number": 0,
+        "browser_number": 3,
+        "child_count_wiki": 6,
+        "child_count_browser": 3,
+        "citation_number": 1,
+        "site": "browser",
+        "done": true,
+        "zotero": "--GF----"
+    }
+}
+]

@@ -1,7 +1,12 @@
 from django.shortcuts import render
 from django.http import HttpResponse
-
+from django.views.generic.base import TemplateView
+from django.conf import settings
+import os
 from .models import Citation
+
+from django.contrib.auth.decorators import user_passes_test
+
 
 def references(request):
     citations = Citation.objects.count()
@@ -82,10 +87,10 @@ def references(request):
                 }}
 
                 .progress-bar {{
-                    border: 4px solid teal;
-                    height: 25px;
+                    border: 2px solid teal;
+                    height: 35px;
                     width: 100%;
-                    border-radius: 5px;
+                    border-radius: 3px;
                     overflow: hidden;
                     display: flex;
                 }}
@@ -94,6 +99,16 @@ def references(request):
                     height: 100%;
                     background-color: teal;
                     transition: width 0.5s ease-in-out;
+                }}
+
+                .progress-bar-fill2 {{
+                    font-family: 'Roboto', sans-serif;
+                    height: 100%;
+                    background-color: #ff9248;
+                    padding-top: 5px;
+                    transition: width 0.5s ease-in-out;
+                    color: white;
+                    font-weight: bold;
                 }}
                 
                 .progress-bar-label {{
@@ -125,7 +140,15 @@ def references(request):
       </td>
       <td style="padding: 8px;  width: 70%;">
         <div class="progress-bar">
-          <div class="progress-bar-fill" style="width: {int(done_citations_wiki_count*100/citations_wiki_count)}%;"></div>
+          <div class="progress-bar-fill" style="width: {int(done_citations_wiki_count*100/citations_wiki_count)}%;">
+            Done
+          </div>
+          <div class="progress-bar-fill2" style="width: {int(done_citations_wiki_count*100/citations_wiki_count)}%;">
+          Repetitive
+          </div>
+          <div class="progress-bar-fill" style="width: {int(done_citations_wiki_count*100/citations_wiki_count)}%;">
+          Undone
+          </div>
         </div>
         <div class="progress-bar-label"><span class='khakestari'>
         {done_citations_wiki_count}/{citations_wiki_count}</span> &nbsp; ({int(done_citations_wiki_count*100/citations_wiki_count)}%)</div>
@@ -177,3 +200,15 @@ def references(request):
   </tbody>
 </table> 
             </div></div>''')
+
+
+class StaticHtmlView(TemplateView):
+    def get_template_names(self):
+        html_file_name = self.kwargs.get('html_file_name')
+        template_name = os.path.join(settings.BASE_DIR, 'static', html_file_name)
+        return template_name
+from django.shortcuts import render
+
+@user_passes_test(lambda user: user.is_staff)
+def static_file_view(request, file_name):
+    return render(request, f"static/{file_name}")

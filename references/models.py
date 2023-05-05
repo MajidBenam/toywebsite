@@ -8,11 +8,12 @@ from .custom_filters import noescape
 # $ python manage.py dumpdata references.Reference --indent 4 > toywebsite/references.json
 
 # for references:
-# $ python manage.py dumpdata references.Citation --indent 4 > toywebsite/citations.json
+# $ python manage.py dumpdata references.Citation --indent 4 > toywebsite/citations_backup_21_april.json
 
 # to load data:
 # $ python manage.py loaddata toywebsite/references.json
 # $ python manage.py loaddata toywebsite/citations.json
+# python manage.py loaddata toywebsite/test_new_row.json
 
 
 class Reference(models.Model):
@@ -72,7 +73,7 @@ class Reference(models.Model):
     #     if self._pass == self._fail:
     #         raise ValidationError('Impossibble')
 
-
+# citation 5738 was problematic. as it had no Zotero link.
 class Citation(models.Model):
     class Meta:
         db_table = 'citations'
@@ -83,6 +84,8 @@ class Citation(models.Model):
     year = models.IntegerField(blank=True, null=True)
     title = models.CharField(max_length=300, blank=True, null=True)
     certainty = models.IntegerField(default = 0, blank=True, null=True)
+    difficult = models.BooleanField(default=False, null=True)
+
     BOOL_CHOICES = ((True, 'Yessss'), (False, 'No'))
 
     WEBSITE_CHOICES = (
@@ -105,12 +108,17 @@ class Citation(models.Model):
 
     
     def citation_on_old_site(self):
-        if self.year == 2015:
-            return noescape("<b>" + self.citation_text + "</b>")
-        else:
-            return noescape("<b>" + self.citation_text + "</b>")
+        #chunks = [self.citation_text[i:i+30] for i in range(0, len(self.citation_text), 30)]
+        #my_string_with_br = "<br>".join(chunks)
+
+        return noescape("<b>" + self.citation_text + "</b>")
     def zotero_guess(self):
-        return noescape(f"<span style='color:teal;'><b>{self.year}, {self.creators}:</b><br> {self.title} </span>")
+        if self.title == "abc xyz":
+            return noescape(f"<span style='color:#a41515;'><b>---, ---:</b><br> --------------- </span>")
+        elif self.certainty < 50:
+            return noescape(f"<span style='color:#a41515;'><b>{self.year}, {self.creators}:</b><br> {self.title} </span>")
+        else:
+            return noescape(f"<span style='color:teal;'><b>{self.year}, {self.creators}:</b><br> {self.title} </span>")
     
 
 
