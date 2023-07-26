@@ -14,7 +14,7 @@ def references(request):
 
     # let's count the wiki situation:
     # keep in mind that a citation is relevant to seshat.info if its children are >= 1
-    citations_wiki = Citation.objects.filter(child_count_wiki__gte=1)
+    citations_wiki = Citation.objects.filter(child_count_wiki__gte=1).filter(certainty__gte=-1)
     citations_wiki_count = citations_wiki.count()
     done_citations_wiki_count = citations_wiki.filter(done=True).count()
     my_wiki_children = 0
@@ -26,7 +26,7 @@ def references(request):
                 my_done_wiki_children+=item.child_count_wiki
 
     # let's count the browser situation:
-    citations_browser = Citation.objects.filter(child_count_browser__gte=1)
+    citations_browser = Citation.objects.filter(child_count_browser__gte=1).filter(certainty__gte=-1)
     citations_browser_count = citations_browser.count()
     
     done_citations_browser_count = citations_browser.filter(done=True).count()
@@ -141,13 +141,6 @@ def references(request):
       <td style="padding: 8px;  width: 70%;">
         <div class="progress-bar">
           <div class="progress-bar-fill" style="width: {int(done_citations_wiki_count*100/citations_wiki_count)}%;">
-            Done
-          </div>
-          <div class="progress-bar-fill2" style="width: {int(done_citations_wiki_count*100/citations_wiki_count)}%;">
-          Repetitive
-          </div>
-          <div class="progress-bar-fill" style="width: {int(done_citations_wiki_count*100/citations_wiki_count)}%;">
-          Undone
           </div>
         </div>
         <div class="progress-bar-label"><span class='khakestari'>

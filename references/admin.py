@@ -12,7 +12,7 @@ from django.db.models import F, Sum
 from django.urls import reverse
 
 
-from .models import Reference, Citation
+from .models import Reference, Citation, ExpandedCitation
 
 
 class CertaintyFilter(admin.SimpleListFilter):
@@ -216,6 +216,12 @@ class CitationAdmin(admin.ModelAdmin):
     list_per_page = 20
     list_filter = (SiteFilter, DoneFilter, DifficultFilter, CertaintyFilter, FertileFilter)
 
+    def get_queryset(self, request):
+        # Apply your default filter here
+        queryset = super().get_queryset(request)
+        queryset = queryset.filter(certainty__gte=-1)
+        return queryset
+
     # def view_static_file(self, obj):
     #     url = reverse('static_file_view', args=["PgOrokE.html"])
     #     return format_html(f'<a href="{url}">"PgOrokE.html"</a>')
@@ -273,3 +279,5 @@ class CitationAdmin(admin.ModelAdmin):
         
 
 admin.site.register(Citation, CitationAdmin)
+admin.site.register(ExpandedCitation)
+

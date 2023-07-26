@@ -8,7 +8,7 @@ from .custom_filters import noescape
 # $ python manage.py dumpdata references.Reference --indent 4 > toywebsite/references.json
 
 # for references:
-# $ python manage.py dumpdata references.Citation --indent 4 > toywebsite/citations_backup_21_april.json
+# $ python manage.py dumpdata references.Citation --indent 4 > toywebsite/citations_backup_July_24_1708.json
 
 # to load data:
 # $ python manage.py loaddata toywebsite/references.json
@@ -124,6 +124,38 @@ class Citation(models.Model):
 
     def __str__(self):
         if self.year and self.creators:
-            return f'{self.year}_{self.creators}'
+            return f'{self.id}: {self.year}_{self.creators} {self.citation_text[0:50]}'
         else:
-            return f'{self.id}'
+            return f'{self.id}:  {self.citation_text[0:50]}'
+        
+class ExpandedCitation(models.Model):
+    class Meta:
+        db_table = 'expandedcitations'
+
+    WEBSITE_CHOICES = (
+        ("wiki", "Seshat.info"),
+        ("browser", "seshatdatabank.info"),
+    )
+
+    expanded_citation_text = models.TextField(max_length=900)
+    citation_on_toy = models.ForeignKey(Citation, on_delete=models.SET_NULL, null=True, blank=True,related_name="ref1")
+    expanded_polity =  models.CharField(max_length=20)
+    expanded_site = models.CharField(max_length=8, choices=WEBSITE_CHOICES, blank=True, null=True)
+    expanded_citation_number = models.IntegerField(default = 0, blank=True, null=True)
+    citation_on_toy_2 = models.ForeignKey(Citation, on_delete=models.SET_NULL, null=True, blank=True,related_name="ref2")
+    citation_on_toy_3 = models.ForeignKey(Citation, on_delete=models.SET_NULL, null=True, blank=True,related_name="ref3")
+
+    def __str__(self):
+        return f'({self.expanded_polity}: {self.expanded_site}: {self.expanded_citation_number}) {self.expanded_citation_text}'
+
+
+
+""" expanded_citation_text:     Aliyadeh Good life in Bordsioy 123, 125
+    citation_on_toy:            Aliyadeh Good life in Bordsioy
+    expanded_polity:  AfDurrn
+    expanded_site:   wiki 
+    expanded_citation_number: 14
+
+
+
+"""
